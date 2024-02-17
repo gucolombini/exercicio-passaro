@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+    <title>Exercício do Pássaro</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script>
+
+// configuração da cena do phaser
+var config = {
+        type: Phaser.AUTO,
+        width: 800,
+        height: 600,
+
+        scene: {
+            preload: preload,
+            create: create,
+            update: update
+        }
+    };
+
+    var game = new Phaser.Game(config);
+    var passarinho;
+
+// variáveis para prever a quantidade de movimentos do pássaro
+    var predictx = 0;
+    var movecount = 0;
+
+// variáveis que determinam a velocidade vertical e horizontal do pássaro durante a ida e a volta
+// você pode alterar para quais velocidades voce quiser!! (vel. horiz. = 4x vel. vert.)
+    var idaVeloc = 5;
+    var voltaVeloc = 3;
+
+
+// pré-carregamento dos assets do jogo
+    function preload() {
+        this.load.image('bg', 'assets/bg_space.png');
+        this.load.spritesheet('bird', 'assets/bird-purple.png', { frameWidth: 75, frameHeight: 75 });
+    }
+
+// implementação dos assets como atores no jogo
+    function create() {
+        this.add.image(400, 300, 'bg').setScale(1.2);
+        passarinho = this.add.sprite(100, 150, 'bird').setScale(1.3);
+
+// configuração da animação do pássaro
+        this.anims.create({
+            key: 'fly',
+            frames: this.anims.generateFrameNumbers('bird', { start: 0, end: 7 }),
+            frameRate: 10,
+            repeat: -1
+        });
+
+// bata as asas meu filho
+        passarinho.anims.play('fly', true);
+
+    }
+
+    function update() { 
+
+// se o pássaro estiver na posição inicial, iniciar ida e resetar valores de previsão
+        if (passarinho.x <= 100) {
+            passarinho.ida = true;
+            passarinho.setFlipX(false);
+            movecount = 0
+            predictx = passarinho.x
+        }
+
+// antes do pássaro se mover, checa-se quantos movimentos terá de fazer até alcançar o outro lado
+        while (predictx < 700 && passarinho.ida === true) {
+            movecount += 1
+            predictx += idaVeloc
+                if (predictx >= 700) {
+                    console.log(movecount, 'movimentos para a direita')
+                }
+        }
+
+// ele se move pra direita até alcançar x >= 700
+        if (passarinho.x < 700 && passarinho.ida === true) {
+            console.log('LETS BORA PRA DIREITA')
+            passarinho.x += idaVeloc;
+            passarinho.y += idaVeloc/2;
+        }
+
+// inicia-se a volta e novamente reseta valores de previsão
+        if (passarinho.x >= 700) {
+            passarinho.ida = false;
+            passarinho.setFlipX(true);
+            movecount = 0
+            predictx = passarinho.x
+        }
+
+// previsão de movimentos da volta
+        while (predictx > 100 && passarinho.ida === false) {
+            movecount += 1
+            predictx -= voltaVeloc
+                if (predictx <= 100) {
+                    console.log(movecount, 'movimentos para a esquerda')
+                }
+        }
+
+// pássaro se move à esquerda até chegar à posição inicial, entrando em loop
+        if (passarinho.x > 100 && passarinho.ida === false) {
+            console.log('LETS BORA PRA ESQUERDA')
+            passarinho.x -= voltaVeloc;
+            passarinho.y -= voltaVeloc/2;
+        }
+
+    }
+
+</script>
+
+</body>
+</html>
